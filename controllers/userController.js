@@ -64,9 +64,31 @@ const getUserProfile = async (req, res) => {
     }
 }
 
+const updatePreference = async (req, res) => {
+    try {
+        const user = req.user;
+        const { language, genre } = req.body;
+
+        if (!language && !genre) {
+            return res.status(400).json({ message: 'No preferences provided to update' });
+        }
+
+        const updatedPreferences = await User.updateUserPreferences(user.email, { language, genre });
+
+        res.status(200).json({
+            message: 'Preferences updated successfully',
+            preferences: updatedPreferences
+        });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+
+
 module.exports ={
     registerUser,
     loginUser,
-    getUserProfile
+    getUserProfile,
+    updatePreference
     
 }

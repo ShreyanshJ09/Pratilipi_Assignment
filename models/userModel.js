@@ -88,6 +88,28 @@ userSchema.statics.login = async function (email, password) {
         throw new Error('Error Logging in:' + error.message);
     }
 }
+userSchema.statics.updateUserPreferences = async function (email, newPreferences) {
+    try {
+        const user = await this.findOne({ email });
+        if (!user) {
+            throw new Error('User not found');
+        }
+
+        const { language, genre } = newPreferences;
+
+        if (language && Array.isArray(language)) {
+            user.preferences.language = Array.from(new Set([...user.preferences.language, ...language]));
+        }
+        if (genre && Array.isArray(genre)) {
+            user.preferences.genre = Array.from(new Set([...user.preferences.genre, ...genre]));
+        }
+
+        await user.save();
+        return user.preferences;
+    } catch (error) {
+        throw new Error('Error updating preferences: ' + error.message);
+    }
+};
 
 const User = mongoose.model('User', userSchema);
 
