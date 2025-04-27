@@ -20,20 +20,25 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    preferences: {
-      promotions: {
-        type: Boolean,
-        default: true
-      },
-      order_updates: {
-        type: Boolean,
-        default: true
-      },
-      recommendations: {
-        type: Boolean,
-        default: true
-      }
+    
+    cart: {
+        type: [String],
+        default: []
     },
+    previous_orders: {
+        type: [String],
+        default: []
+    },
+    preferences: {
+      language: {
+        type: [String],
+        default: []
+      },
+      genre: {
+        type: [String],
+        default: []
+      }
+    }
 }, {
     timestamps: true,
     collection: 'users'

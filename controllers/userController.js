@@ -31,7 +31,42 @@ const loginUser = async (req, res) => {
     }
 }
 
+const getUserProfile = async (req, res) => {
+    try {
+        const authHeader = req.headers.authorization;
+        if (!authHeader || !authHeader.startsWith('Bearer ')) {
+            return res.status(401).json({ message: 'Authorization token is required' });
+        }
+        const token = authHeader.split(' ')[1];
+        const decoded = jwt.verify(token, JWT_SECRET);
+        if(!decoded || !decoded.email){
+            return res.status(401).json({ message: 'Invalid token' });
+        }
+        const user = await User.getUser(decoded.email);
+        if(!user){
+            return res.status(404).json({ message: 'User not found' });
+        }
+        res.status(200).json({
+            message: "User Profile Retrieved Successfully",
+            user: {
+                id: user._id,
+                name: user.name, 
+                email: user.email,
+                cart: user.cart,
+                previous_order: user.previous_order,
+                preferences: user.preferences,
+                createdAt: user.createdAt,
+                updatedAt: user.updatedAt
+            }
+        });
+    } catch (error) {
+        res.status(401).json({ error: error.message });
+    }
+}
+
 module.exports ={
     registerUser,
     loginUser,
+    getUserProfile
+    
 }
