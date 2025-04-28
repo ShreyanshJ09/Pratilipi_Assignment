@@ -1,9 +1,14 @@
 const Book = require('../models/bookModel');
+const messageQueue=require('../utils/messageQueue');
 
 const addBook = async (req, res) => {
     try {
         const bookData = req.body;
         const newBook = await Book.addBook(bookData);
+        await messageQueue.publish('book-events', {
+            type: 'BOOK_CREATED',
+            data: newBook
+        });
         res.status(201).json({ 
             message: 'Book added successfully', 
             book: newBook 
