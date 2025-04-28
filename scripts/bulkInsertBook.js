@@ -23,12 +23,10 @@ const bulkInsert = async () => {
 
         console.log('Books inserted successfully');
         
-        // Exit the process after successful insertion
         process.exit(0); 
     } catch (error) {
-        // Log error if something goes wrong
         console.error('Error inserting books:', error);
-        process.exit(1); // Exit with an error code
+        process.exit(1); 
     }
 };
 

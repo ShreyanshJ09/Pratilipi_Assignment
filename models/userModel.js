@@ -38,6 +38,28 @@ const userSchema = new mongoose.Schema({
         type: [String],
         default: []
       }
+    },
+    history: {
+        view_history: [{
+            book_id: {
+                type: String,
+                required: true
+            },
+            viewedAt: {
+                type: Date,
+                default: Date.now
+            }
+        }],
+        search_history: [{
+            book_id: {
+                type: String,
+                required: true
+            },
+            viewedAt: {
+                type: Date,
+                default: Date.now
+            }
+        }]
     }
 }, {
     timestamps: true,
@@ -110,6 +132,39 @@ userSchema.statics.updateUserPreferences = async function (email, newPreferences
         throw new Error('Error updating preferences: ' + error.message);
     }
 };
+
+userSchema.statics.updateUserHistory = async function (email, type, bookEntry) {
+    try {
+        const user = await this.findOne({ email });
+        if (!user) {
+            throw new Error('User not found');
+        }
+
+        if (!bookEntry || !bookEntry.book_id) {
+            throw new Error('Invalid book entry');
+        }
+
+        const entry = {
+            book_id: bookEntry.book_id,
+            viewedAt: bookEntry.viewedAt || new Date()
+        };
+
+        if (type === 'view') {
+            user.history.view_history.push(entry);
+        } else if (type === 'search') {
+            user.history.search_history.push(entry);
+        } else {
+            throw new Error('Invalid history type');
+        }
+
+        await user.save();
+        return user.history;
+    } catch (error) {
+        throw new Error('Error updating history: ' + error.message);
+    }
+};
+
+
 
 const User = mongoose.model('User', userSchema);
 

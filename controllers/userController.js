@@ -55,6 +55,7 @@ const getUserProfile = async (req, res) => {
                 cart: user.cart,
                 previous_order: user.previous_order,
                 preferences: user.preferences,
+                history: user.history,
                 createdAt: user.createdAt,
                 updatedAt: user.updatedAt
             }
@@ -84,11 +85,36 @@ const updatePreference = async (req, res) => {
     }
 };
 
+const updateHistory = async (req, res) => {
+    try {
+        const user = req.user;
+        const { type, book_id, viewedAt } = req.body;
+
+        if (!type || !['view', 'search'].includes(type)) {
+            return res.status(400).json({ message: 'Invalid type. Must be "view" or "search"' });
+        }
+        if (!book_id) {
+            return res.status(400).json({ message: 'book_id is required' });
+        }
+
+        const bookEntry = { book_id, viewedAt };
+        const updatedHistory = await User.updateUserHistory(user.email, type, bookEntry);
+
+        res.status(200).json({
+            message: 'History updated successfully',
+            history: updatedHistory
+        });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+
 
 module.exports ={
     registerUser,
     loginUser,
     getUserProfile,
-    updatePreference
+    updatePreference,
+    updateHistory
     
 }
