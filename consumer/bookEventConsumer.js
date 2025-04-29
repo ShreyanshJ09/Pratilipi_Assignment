@@ -1,26 +1,24 @@
-// notification-service/consumers/bookEventConsumer.js
 const messageQueue = require('../utils/messageQueue');
 const User = require('../models/userModel');
 const Notification = require('../models/notificationModel');
 
 async function startConsumer() {
   try {
-    // Connect to message queue
     await messageQueue.connect();
-    
-    // Subscribe to book-events queue
     await messageQueue.subscribe('book-events', async (message) => {
       console.log('Received message from queue:', message);
       
       if (message.type === 'BOOK_CREATED') {
         try {
           const bookData = message.data;
-          
-          // Get all users
+
+          if (!bookData.title || !bookData.author) {
+            console.warn('Missing title or author in book data:', bookData);
+          }
+
           const users = await User.find({});
           console.log(`Found ${users.length} users to notify about new book`);
-          
-          // Create notifications for each user
+
           for (const user of users) {
             const notification = new Notification({
               userId: user._id,
@@ -29,7 +27,7 @@ async function startConsumer() {
               sentAt: new Date(),
               read: false
             });
-            
+
             await notification.save();
             console.log(`Created notification for user ${user._id}`);
           }
@@ -38,11 +36,10 @@ async function startConsumer() {
         }
       }
     });
-    
+
     console.log('Book event consumer started successfully');
   } catch (error) {
     console.error('Failed to start book event consumer:', error);
-    // Try to reconnect after delay
     setTimeout(startConsumer, 5000);
   }
 }

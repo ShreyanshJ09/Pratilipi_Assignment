@@ -38,6 +38,10 @@ const bookSchema = new mongoose.Schema({
         required: true,
         min: 0,
         max: 5  
+    },
+    author: {
+        type: String,
+        required: true
     }
 }, {
     timestamps: true,
