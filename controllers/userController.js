@@ -1,5 +1,6 @@
 const User = require('../models/userModel');
 const jwt = require('jsonwebtoken');
+const messageQueue= require('../utils/messageQueue');
 
 const JWT_SECRET = `XYZ`; 
 
@@ -85,6 +86,7 @@ const updatePreference = async (req, res) => {
     }
 };
 
+
 const updateBrowsingHistory = async (req, res) => {
     try {
         const user = req.user;
@@ -96,6 +98,14 @@ const updateBrowsingHistory = async (req, res) => {
 
         const updatedHistory = await User.updateBrowsingHistory(user.email, book_id);
 
+        await messageQueue.publish('user-events', {
+            type: 'BROWSING_HISTORY_UPDATED',
+            data: {
+                email: user.email,
+                book_id: book_id
+            }
+        });
+
         res.status(200).json({
             message: 'Browsing history updated successfully',
             browsingHistory: updatedHistory
@@ -104,6 +114,8 @@ const updateBrowsingHistory = async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 };
+
+
 
 const updatePreviousOrders = async (req, res) => {
     try {
@@ -116,6 +128,14 @@ const updatePreviousOrders = async (req, res) => {
 
         const updatedOrders = await User.updatePreviousOrders(user.email, book_id);
 
+        await messageQueue.publish('user-events', {
+            type: 'PREVIOUS_ORDERS_UPDATED',
+            data: {
+                email: user.email,
+                book_id: book_id
+            }
+        });
+
         res.status(200).json({
             message: 'Previous orders updated successfully',
             previous_orders: updatedOrders
@@ -124,7 +144,6 @@ const updatePreviousOrders = async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 };
-
 
 
 module.exports ={
