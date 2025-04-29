@@ -25,10 +25,10 @@ const userSchema = new mongoose.Schema({
         type: [String],
         default: []
     },
-    previous_orders: {
-        type: [String],
-        default: []
-    },
+    previous_orders: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Book'
+    }],
     preferences: {
       language: {
         type: [String],
@@ -39,28 +39,10 @@ const userSchema = new mongoose.Schema({
         default: []
       }
     },
-    history: {
-        view_history: [{
-            book_id: {
-                type: String,
-                required: true
-            },
-            viewedAt: {
-                type: Date,
-                default: Date.now
-            }
-        }],
-        search_history: [{
-            book_id: {
-                type: String,
-                required: true
-            },
-            viewedAt: {
-                type: Date,
-                default: Date.now
-            }
-        }]
-    }
+    browsingHistory: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Book'
+    }],
 }, {
     timestamps: true,
     collection: 'users'
@@ -133,34 +115,50 @@ userSchema.statics.updateUserPreferences = async function (email, newPreferences
     }
 };
 
-userSchema.statics.updateUserHistory = async function (email, type, bookEntry) {
+
+userSchema.statics.updatePreviousOrders = async function (email, bookId) {
     try {
         const user = await this.findOne({ email });
         if (!user) {
             throw new Error('User not found');
         }
 
-        if (!bookEntry || !bookEntry.book_id) {
-            throw new Error('Invalid book entry');
+        if (!bookId) {
+            throw new Error('Invalid book ID');
         }
 
-        const entry = {
-            book_id: bookEntry.book_id,
-            viewedAt: bookEntry.viewedAt || new Date()
-        };
-
-        if (type === 'view') {
-            user.history.view_history.push(entry);
-        } else if (type === 'search') {
-            user.history.search_history.push(entry);
-        } else {
-            throw new Error('Invalid history type');
+        // Avoid duplicates in previous orders
+        if (!user.previous_orders.includes(bookId)) {
+            user.previous_orders.push(bookId);
         }
 
         await user.save();
-        return user.history;
+        return user.previous_orders;
     } catch (error) {
-        throw new Error('Error updating history: ' + error.message);
+        throw new Error('Error updating previous orders: ' + error.message);
+    }
+};
+
+
+userSchema.statics.updateBrowsingHistory = async function (email, bookId) {
+    try {
+        const user = await this.findOne({ email });
+        if (!user) {
+            throw new Error('User not found');
+        }
+
+        if (!bookId) {
+            throw new Error('Invalid book ID');
+        }
+
+        if (!user.browsingHistory.includes(bookId)) {
+            user.browsingHistory.push(bookId);
+        }
+
+        await user.save();
+        return user.browsingHistory;
+    } catch (error) {
+        throw new Error('Error updating browsing history: ' + error.message);
     }
 };
 

@@ -1,5 +1,5 @@
 const express = require('express');
-const {registerUser,loginUser,getUserProfile,updatePreference,updateHistory} = require('../controllers/userController');
+const {registerUser,loginUser,getUserProfile,updatePreference,updateBrowsingHistory,updatePreviousOrders} = require('../controllers/userController');
 const authenticationMiddleware = require('../middleware/authentication');
 const router = express.Router();
 
@@ -20,7 +20,11 @@ router.put('/preference',authenticationMiddleware, (req, res) => {
 });
 
 router.post('/history',authenticationMiddleware, (req, res) => {
-    updateHistory(req, res);
+    updateBrowsingHistory(req, res);
+});
+
+router.post('/previousOrder',authenticationMiddleware, (req, res) => {
+    updatePreviousOrders(req, res);
 });
 
 

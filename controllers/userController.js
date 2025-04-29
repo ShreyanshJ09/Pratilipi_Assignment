@@ -85,24 +85,40 @@ const updatePreference = async (req, res) => {
     }
 };
 
-const updateHistory = async (req, res) => {
+const updateBrowsingHistory = async (req, res) => {
     try {
         const user = req.user;
-        const { type, book_id, viewedAt } = req.body;
+        const { book_id } = req.body;
 
-        if (!type || !['view', 'search'].includes(type)) {
-            return res.status(400).json({ message: 'Invalid type. Must be "view" or "search"' });
-        }
         if (!book_id) {
             return res.status(400).json({ message: 'book_id is required' });
         }
 
-        const bookEntry = { book_id, viewedAt };
-        const updatedHistory = await User.updateUserHistory(user.email, type, bookEntry);
+        const updatedHistory = await User.updateBrowsingHistory(user.email, book_id);
 
         res.status(200).json({
-            message: 'History updated successfully',
-            history: updatedHistory
+            message: 'Browsing history updated successfully',
+            browsingHistory: updatedHistory
+        });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+
+const updatePreviousOrders = async (req, res) => {
+    try {
+        const user = req.user;
+        const { book_id } = req.body;
+
+        if (!book_id) {
+            return res.status(400).json({ message: 'book_id is required' });
+        }
+
+        const updatedOrders = await User.updatePreviousOrders(user.email, book_id);
+
+        res.status(200).json({
+            message: 'Previous orders updated successfully',
+            previous_orders: updatedOrders
         });
     } catch (error) {
         res.status(500).json({ error: error.message });
@@ -110,11 +126,12 @@ const updateHistory = async (req, res) => {
 };
 
 
+
 module.exports ={
     registerUser,
     loginUser,
     getUserProfile,
     updatePreference,
-    updateHistory
-    
+    updateBrowsingHistory,
+    updatePreviousOrders
 }

@@ -51,7 +51,6 @@ const markAsRead = async (req, res) => {
   }
 };
 
-// This createNotification function is likely only used internally (admin trigger)
 const createNotification = async (req, res) => {
   try {
     const notificationData = req.body;
