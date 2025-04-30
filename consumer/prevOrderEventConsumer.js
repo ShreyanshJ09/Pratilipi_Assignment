@@ -18,14 +18,12 @@ async function startUserOrderConsumer() {
             return;
           }
 
-          // Get user
           const user = await User.findOne({ email });
           if (!user) {
             console.warn(`User with email ${email} not found`);
             return;
           }
 
-          // Get ordered book
           const orderedBook = await Book.findById(book_id);
           if (!orderedBook) {
             console.warn(`Book with ID ${book_id} not found`);
@@ -34,7 +32,6 @@ async function startUserOrderConsumer() {
 
           const author = orderedBook.author;
 
-          // Get other books by same author (excluding the ordered one)
           const relatedBooks = await Book.find({ 
             author, 
             _id: { $ne: book_id } 
@@ -45,11 +42,9 @@ async function startUserOrderConsumer() {
             return;
           }
 
-          // Create notification content
           const bookList = relatedBooks.map(b => `• ${b.book_name}`).join('\n');
           const notificationText = `You ordered "${orderedBook.book_name}". Check out more books by ${author}:\n${bookList}`;
 
-          // Save notification
           const notification = new Notification({
             userId: user._id,
             type: 'related_books',

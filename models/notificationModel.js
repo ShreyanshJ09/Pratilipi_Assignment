@@ -9,7 +9,7 @@ const notificationSchema = new mongoose.Schema({
   type: {
     type: String,
     required: true,
-    enum: ['new_book', 'related_books','stock_alert']
+    enum: ['new_book', 'related_books','stock_alert','promotion']
   },
   content: {
     type: String,

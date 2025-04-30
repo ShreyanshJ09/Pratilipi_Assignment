@@ -8,6 +8,7 @@ const notificationRoute= require('./routes/notificationRoute');
 const { startConsumer } = require('./consumer/bookEventConsumer');
 const {startUserOrderConsumer}=require('./consumer/prevOrderEventConsumer')
 const {startBrowsingEventConsumer}=require('./consumer/browsingHistoryEventConsumer');
+const startPromotionScheduler=require('./cron/promotionalMessge');
 connectToDatabase();
 
 
@@ -20,6 +21,7 @@ app.use('/notify',notificationRoute);
 startConsumer();
 startUserOrderConsumer();
 startBrowsingEventConsumer();
+startPromotionScheduler();
 
 app.listen(3030,()=>{
     console.log('Server is running on http://localhost:3030')
