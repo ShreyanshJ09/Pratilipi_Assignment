@@ -98,7 +98,7 @@ const updateBrowsingHistory = async (req, res) => {
 
         const updatedHistory = await User.updateBrowsingHistory(user.email, book_id);
 
-        await messageQueue.publish('user-events', {
+        await messageQueue.publish('user-events_forBrowising', {
             type: 'BROWSING_HISTORY_UPDATED',
             data: {
                 email: user.email,
@@ -128,7 +128,7 @@ const updatePreviousOrders = async (req, res) => {
 
         const updatedOrders = await User.updatePreviousOrders(user.email, book_id);
 
-        await messageQueue.publish('user-events', {
+        await messageQueue.publish('user-events_forOrder', {
             type: 'PREVIOUS_ORDERS_UPDATED',
             data: {
                 email: user.email,
